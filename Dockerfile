@@ -1,22 +1,18 @@
-# Étape 1 : image Node.js
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Copier package.json et package-lock.json
 COPY package*.json ./
-
-# Installer les dépendances
 RUN npm install
 
-# Copier tout le code
 COPY . .
 
-# Installer ts-node globalement
-RUN npm install -g ts-node typescript
+RUN npm install -g typescript
 
-# Exposer le port
+# compiler TS en JS
+RUN npx tsc
+
 EXPOSE 3000
 
-# Lancer le serveur
-CMD ["ts-node", "src/index.ts"]
+# Lancer le JS compilé
+CMD ["node", "dist/index.js"]
