@@ -11,7 +11,7 @@ app.use(express.json());
 
 
 app.get("/", (req: Request, res: Response) => {
-    res.send("Backend Node.js TS OK !");
+    res.send("Backend Node.js TS OK TSTSTSTSTS !");
 });
 
 // Démarrage serveur
