@@ -3,7 +3,6 @@ import prisma from "../lib/prisma.js";
 
 const router = Router();
 
-// Liste tous les utilisateurs (sans les mots de passe)
 router.get("/", async (_req, res) => {
     try {
         const users = await prisma.user.findMany({
@@ -15,7 +14,6 @@ router.get("/", async (_req, res) => {
     }
 });
 
-// Détail d'un utilisateur par id
 router.get("/:id", async (req, res) => {
     try {
         const user = await prisma.user.findUnique({
