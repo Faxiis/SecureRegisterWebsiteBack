@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import type { Request, Response } from "express";
 import authRouter from "./routes/auth.js";
+import usersRouter from "./routes/users.js";
 
 const app = express();
 const PORT = 3000;
@@ -11,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/auth", authRouter);
-
+app.use("/users", usersRouter);
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Backend Node.js TS OK TSTSTSTSTS !");
