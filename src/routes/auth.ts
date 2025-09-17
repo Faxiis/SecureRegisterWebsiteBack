@@ -2,6 +2,7 @@ import { Router } from "express";
 import { calculateEntropy } from "../services/entropy.js";
 import prisma from "../lib/prisma.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const router = Router();
 
@@ -53,7 +54,13 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({ error: "Invalid credentials" });
         }
 
-        res.status(200).json({ id: user.id, username: user.username });
+        const token = jwt.sign(
+            { userId: user.id, username: user.username },
+                process.env.JWT_SECRET || "dev-secret",
+            { expiresIn: "1h" }
+        );
+
+        res.status(200).json({ token, id: user.id, username: user.username });
     } catch (err: any) {
         res.status(500).json({ error: err.message });
     }

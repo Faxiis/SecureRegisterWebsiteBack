@@ -4,6 +4,7 @@ import type { Request, Response } from "express";
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users.js";
 import rateLimit from "express-rate-limit";
+import "dotenv/config";
 
 const app = express();
 const PORT = 3000;
