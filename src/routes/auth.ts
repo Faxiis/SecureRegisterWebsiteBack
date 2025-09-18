@@ -37,10 +37,9 @@ router.post("/register", async (req, res) => {
     try {
         const user = await prisma.user.create({
             data: { username, password: hashedPassword },
-        });
+        }); user
 
-        //res.status(201).json({ id: user.id, username: user.username });
-        res.status(201).json({ id: userAdmin.id, username: userAdmin.username });
+        res.status(201).json({ id: user.id, username: user.username });
     } catch (err: any) {
         res.status(500).json({ error: err.message });
     }
