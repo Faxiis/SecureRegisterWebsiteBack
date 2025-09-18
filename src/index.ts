@@ -3,6 +3,7 @@ import cors from "cors";
 import type { Request, Response } from "express";
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users.js";
+import adminRouter from "./routes/admin/dashboard.js";
 import rateLimit from "express-rate-limit";
 import "dotenv/config";
 import bloomFiltersRouter from "./routes/bloomFilters.js"
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);
 app.use("/bloom", bloomFiltersRouter);
+app.use("/admin", adminRouter);
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Backend Node.js TS OK TSTSTSTSTS !");
