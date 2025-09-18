@@ -12,22 +12,24 @@ const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
 router.post("/register", async (req, res) => {
     const { username, password } = req.body;
 
+    // Vérification présence username et password
     if (!username || !password) {
         return res.status(400).json({ error: "Username and password required" });
     }
 
+    // Vérification caractères spéciaux, majuscules et chiffres
     if (!passwordRegex.test(password)) {
         return res.status(400).json({ error: "Password must contain at least one uppercase letter, one digit, and one special character." });
     }
 
+    // Vérification entropie
     if (calculateEntropy(password) < 45) {
         return res.status(400).json({ error: "Password too weak" });
     }
 
-    // Vérification du leak via Bloom filter (info, pas bloquant)
-    let passwordLeaked = false;
+    // Vérification du leak via Bloom filter
     if (bloomFilter && bloomFilter.has(password)) {
-        passwordLeaked = true;
+        return res.status(400).json({ error: "Password leaked in a previous data breach." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -37,7 +39,7 @@ router.post("/register", async (req, res) => {
             data: { username, password: hashedPassword },
         });
 
-        res.status(201).json({ id: user.id, username: user.username, passwordLeaked });
+        res.status(201).json({ id: user.id, username: user.username });
     } catch (err: any) {
         res.status(500).json({ error: err.message });
     }
@@ -62,7 +64,7 @@ router.post("/login", async (req, res) => {
         }
 
         const token = jwt.sign(
-            { userId: user.id, username: user.username },
+            { userId: user.id, username: user.username, role: user.role },
             process.env.JWT_SECRET || "dev-secret",
             { expiresIn: "1h" }
         );
