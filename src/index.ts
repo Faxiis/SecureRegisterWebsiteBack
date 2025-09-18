@@ -5,6 +5,7 @@ import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users.js";
 import rateLimit from "express-rate-limit";
 import "dotenv/config";
+import bloomFiltersRouter from "./routes/bloomFilters.js"
 
 const app = express();
 const PORT = 3000;
@@ -22,6 +23,7 @@ app.use(express.json());
 
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);
+app.use("/bloom", bloomFiltersRouter);
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Backend Node.js TS OK TSTSTSTSTS !");
