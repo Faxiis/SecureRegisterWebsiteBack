@@ -81,3 +81,4 @@ router.get("/check", (req: Request, res: Response) => {
 });
 
 export default router;
+export { bloomFilter };
