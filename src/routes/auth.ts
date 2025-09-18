@@ -3,6 +3,7 @@ import { calculateEntropy } from "../services/entropy.js";
 import prisma from "../lib/prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { bloomFilter } from "./bloomFilters.js";
 
 const router = Router();
 
@@ -23,6 +24,12 @@ router.post("/register", async (req, res) => {
         return res.status(400).json({ error: "Password too weak" });
     }
 
+    // Vérification du leak via Bloom filter (info, pas bloquant)
+    let passwordLeaked = false;
+    if (bloomFilter && bloomFilter.has(password)) {
+        passwordLeaked = true;
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
@@ -30,7 +37,7 @@ router.post("/register", async (req, res) => {
             data: { username, password: hashedPassword },
         });
 
-        res.status(201).json({ id: user.id, username: user.username });
+        res.status(201).json({ id: user.id, username: user.username, passwordLeaked });
     } catch (err: any) {
         res.status(500).json({ error: err.message });
     }
@@ -56,7 +63,7 @@ router.post("/login", async (req, res) => {
 
         const token = jwt.sign(
             { userId: user.id, username: user.username },
-                process.env.JWT_SECRET || "dev-secret",
+            process.env.JWT_SECRET || "dev-secret",
             { expiresIn: "1h" }
         );
 
