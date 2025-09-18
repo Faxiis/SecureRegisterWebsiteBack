@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
 import readline from "readline";
+import os from "os";
 import pkg from "bloom-filters";
 
 const { BloomFilter } = pkg;
@@ -11,8 +12,28 @@ const router = Router();
 
 let bloomFilter: InstanceType<typeof BloomFilter> | null = null;
 
+// Utiliser le dossier temporaire du système pour le cache
+const bloomDir = "/app/cache";  // correspond à C:/Users/hugo1/Desktop/TP/cache sur Windows
+const bloomFilePath = path.resolve(bloomDir, "bloom.json");
+
+// Fonction pour charger le Bloom filter depuis le disque au démarrage
+async function loadBloomFilter() {
+  try {
+    const data = await fs.promises.readFile(bloomFilePath, "utf-8");
+    const json = JSON.parse(data);
+    bloomFilter = BloomFilter.fromJSON(json);
+    console.log("Bloom filter loaded from disk:", bloomFilePath);
+  } catch (err) {
+    console.log("No existing Bloom filter found in temp, will generate on /cache.");
+  }
+}
+
+// Charger le filtre au démarrage si présent
+loadBloomFilter();
+
 // POST /bloom/cache
 router.post("/cache", async (req: Request, res: Response) => {
+ console.log("Bloom filter path:", bloomFilePath);   
   const inputPath: string = req.body.path;
   if (!inputPath) {
     return res.status(400).json({ error: "Path is required in the request body." });
@@ -36,7 +57,11 @@ router.post("/cache", async (req: Request, res: Response) => {
     const falsePositiveRate = 0.01;
     bloomFilter = BloomFilter.from(words, falsePositiveRate);
 
-    res.json({ success: true, message: "Bloom filter generated and cached.", count: words.length });
+    // Sauvegarder le Bloom filter sur le disque dans le dossier temporaire
+    await fs.promises.writeFile(bloomFilePath, JSON.stringify(bloomFilter.saveAsJSON()));
+    console.log("Bloom filter saved to temp directory:", bloomFilePath);
+
+    res.json({ success: true, message: "Bloom filter generated, cached, and saved to temp.", count: words.length });
   } catch (err) {
     res.status(500).json({ error: "Failed to generate bloom filter: " + (err as Error).message });
   }
