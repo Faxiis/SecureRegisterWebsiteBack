@@ -4,6 +4,7 @@ import prisma from "../lib/prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { bloomFilter } from "./bloomFilters.js";
+import { calculateRedundancy } from "../services/redondance.js";
 
 const router = Router();
 
@@ -11,6 +12,7 @@ const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
 
 router.post("/register", async (req, res) => {
     const { username, password } = req.body;
+    console.log(calculateRedundancy(password));
 
     // Vérification présence username et password
     if (!username || !password) {
@@ -25,6 +27,11 @@ router.post("/register", async (req, res) => {
     // Vérification entropie
     if (calculateEntropy(password) < 45) {
         return res.status(400).json({ error: "Password too weak" });
+    }
+
+    // Calcule de la redondance
+    if (calculateRedundancy(password) > 0.5) {
+        return res.status(400).json({ error: "Password too redundant (predictable, not varied enough)." });
     }
 
     // Vérification du leak via Bloom filter
