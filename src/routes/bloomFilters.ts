@@ -33,7 +33,6 @@ loadBloomFilter();
 
 // POST /bloom/cache
 router.post("/cache", async (req: Request, res: Response) => {
- console.log("Bloom filter path:", bloomFilePath);   
   const inputPath: string = req.body.path;
   if (!inputPath) {
     return res.status(400).json({ error: "Path is required in the request body." });
