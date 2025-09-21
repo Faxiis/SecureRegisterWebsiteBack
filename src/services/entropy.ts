@@ -2,7 +2,7 @@
  * Estime la taille de l'alphabet du mot de passe en fonction des types de caractères.
  * @param password - Le mot de passe à analyser.
  */
-function estimateAlphabetSize(password: string): number {
+export function estimateAlphabetSize(password: string): number {
     let hasLower = /[a-z]/.test(password);
     let hasUpper = /[A-Z]/.test(password);
     let hasDigits = /[0-9]/.test(password);
